@@ -1,0 +1,15 @@
+# .NET build output
+bin/
+obj/
+TestResults/
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# Local secrets and IDE files: never commit these
+.env
+.vs/
+.idea/
+*.user
