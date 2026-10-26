@@ -18,8 +18,13 @@ public class CorrelationIdMiddleware(RequestDelegate next, ILogger<CorrelationId
             : Guid.NewGuid().ToString("N");
 
         context.Items[ItemKey] = correlationId;
-        context.Response.Headers[HeaderName] = correlationId;
 
+        context.Response.OnStarting(() =>
+        {
+            context.Response.Headers[HeaderName] = correlationId;
+            return Task.CompletedTask;
+        });
+        
         using (logger.BeginScope(new Dictionary<string, object> { [ItemKey] = correlationId }))
         {
             logger.LogInformation("Handling {Method} {Path}", context.Request.Method, context.Request.Path);
