@@ -19,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: src/MeridianVoteTracker.Api/Dockerfile
+    environment:
+      ConnectionStrings__Default: Host=db;Port=5432;Database=meridian;Username=meridian;Password=${POSTGRES_PASSWORD:-meridian_local}
     depends_on:
       db:
         condition: service_healthy
