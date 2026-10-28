@@ -22,6 +22,422 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.AppUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id")
+                        .HasName("pk_app_users");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_app_users_username");
+
+                    b.ToTable("app_users", (string)null);
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Conflict", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("ApprovedImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approved_import_id");
+
+                    b.Property<string>("ApprovedValue")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("approved_value");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("country_code");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("OpenedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opened_at");
+
+                    b.Property<Guid>("ProposedImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("proposed_import_id");
+
+                    b.Property<int>("ProposedLine")
+                        .HasColumnType("integer")
+                        .HasColumnName("proposed_line");
+
+                    b.Property<string>("ProposedValue")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("proposed_value");
+
+                    b.Property<string>("ResolutionNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("resolution_note");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<int?>("ResolvedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("resolved_by_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("VoteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("vote_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_conflicts");
+
+                    b.HasIndex("ApprovedImportId")
+                        .HasDatabaseName("ix_conflicts_approved_import_id");
+
+                    b.HasIndex("ProposedImportId")
+                        .HasDatabaseName("ix_conflicts_proposed_import_id");
+
+                    b.HasIndex("ResolvedByUserId")
+                        .HasDatabaseName("ix_conflicts_resolved_by_user_id");
+
+                    b.HasIndex("Status", "VoteId")
+                        .HasDatabaseName("ix_conflicts_status_vote_id");
+
+                    b.HasIndex("VoteId", "Kind", "ProposedValue")
+                        .IsUnique()
+                        .HasDatabaseName("ix_conflicts_vote_id_kind_proposed_value")
+                        .HasFilter("country_code IS NULL");
+
+                    b.HasIndex("VoteId", "Kind", "CountryCode", "ProposedValue")
+                        .IsUnique()
+                        .HasDatabaseName("ix_conflicts_vote_id_kind_country_code_proposed_value")
+                        .HasFilter("country_code IS NOT NULL");
+
+                    b.ToTable("conflicts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_conflicts_country", "(kind = 'Ballot' AND country_code IS NOT NULL) OR (kind <> 'Ballot' AND country_code IS NULL)");
+
+                            t.HasCheckConstraint("ck_conflicts_resolution", "(status = 'Open' AND resolved_by_user_id IS NULL AND resolved_at IS NULL) OR (status <> 'Open' AND resolved_by_user_id IS NOT NULL AND resolved_at IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.CountryVote", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at");
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("approved_by_user_id");
+
+                    b.Property<string>("Ballot")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("ballot");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("country_code");
+
+                    b.Property<Guid>("SourceImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_import_id");
+
+                    b.Property<int>("SourceLine")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_line");
+
+                    b.Property<int>("VoteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("vote_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_country_votes");
+
+                    b.HasIndex("ApprovedByUserId")
+                        .HasDatabaseName("ix_country_votes_approved_by_user_id");
+
+                    b.HasIndex("SourceImportId")
+                        .HasDatabaseName("ix_country_votes_source_import_id");
+
+                    b.HasIndex("VoteId", "CountryCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_country_votes_vote_id_country_code");
+
+                    b.ToTable("country_votes", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_country_votes_ballot", "ballot IN ('Y', 'N', 'A', 'X')");
+                        });
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Import", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("ConflictCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("conflict_count");
+
+                    b.Property<int>("ConflictsOpened")
+                        .HasColumnType("integer")
+                        .HasColumnName("conflicts_opened");
+
+                    b.Property<long>("ContradictionCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("contradiction_count");
+
+                    b.Property<long>("DuplicateCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("duplicate_count");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("error");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)")
+                        .HasColumnName("file_name");
+
+                    b.Property<DateTimeOffset?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at");
+
+                    b.Property<long>("InvalidCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("invalid_count");
+
+                    b.Property<long>("NewCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("new_count");
+
+                    b.Property<long>("RowsApplied")
+                        .HasColumnType("bigint")
+                        .HasColumnName("rows_applied");
+
+                    b.Property<long>("RowsParsed")
+                        .HasColumnType("bigint")
+                        .HasColumnName("rows_parsed");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("Stage")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("stage");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StoredPath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("stored_path");
+
+                    b.Property<long>("TotalRows")
+                        .HasColumnType("bigint")
+                        .HasColumnName("total_rows");
+
+                    b.Property<long>("UnchangedCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("unchanged_count");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
+
+                    b.Property<int>("UploadedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("uploaded_by_user_id");
+
+                    b.Property<int>("VotesCreated")
+                        .HasColumnType("integer")
+                        .HasColumnName("votes_created");
+
+                    b.HasKey("Id")
+                        .HasName("pk_imports");
+
+                    b.HasIndex("UploadedAt")
+                        .HasDatabaseName("ix_imports_uploaded_at");
+
+                    b.HasIndex("UploadedByUserId")
+                        .HasDatabaseName("ix_imports_uploaded_by_user_id");
+
+                    b.ToTable("imports", (string)null);
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.ImportRowResult", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AssemblyVoteId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("assembly_vote_id");
+
+                    b.Property<string>("Class")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("class");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("country_code");
+
+                    b.Property<Guid>("ImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_id");
+
+                    b.Property<int>("LineNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("line_number");
+
+                    b.Property<string>("OriginalValue")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("original_value");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("reason");
+
+                    b.HasKey("Id")
+                        .HasName("pk_import_row_results");
+
+                    b.HasIndex("ImportId", "Class", "LineNumber")
+                        .HasDatabaseName("ix_import_row_results_import_id_class_line_number");
+
+                    b.ToTable("import_row_results", (string)null);
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.ImportVoteSummary", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AssemblyVoteId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("assembly_vote_id");
+
+                    b.Property<int>("ConflictCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("conflict_count");
+
+                    b.Property<int>("ContradictionCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("contradiction_count");
+
+                    b.Property<int>("DuplicateCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("duplicate_count");
+
+                    b.Property<Guid>("ImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_id");
+
+                    b.Property<int>("NewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("new_count");
+
+                    b.Property<int>("UnchangedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("unchanged_count");
+
+                    b.Property<bool>("VoteCreated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("vote_created");
+
+                    b.HasKey("Id")
+                        .HasName("pk_import_vote_summaries");
+
+                    b.HasIndex("ImportId", "AssemblyVoteId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_import_vote_summaries_import_id_assembly_vote_id");
+
+                    b.ToTable("import_vote_summaries", (string)null);
+                });
+
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.MemberState", b =>
                 {
                     b.Property<int>("Id")
@@ -59,6 +475,324 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_member_states_country_code_member_from");
 
                     b.ToTable("member_states", (string)null);
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Position", b =>
+                {
+                    b.Property<int>("VoteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("vote_id");
+
+                    b.Property<string>("Stance")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("stance");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by_user_id");
+
+                    b.Property<int>("Weight")
+                        .HasColumnType("integer")
+                        .HasColumnName("weight");
+
+                    b.HasKey("VoteId")
+                        .HasName("pk_positions");
+
+                    b.HasIndex("UpdatedByUserId")
+                        .HasDatabaseName("ix_positions_updated_by_user_id");
+
+                    b.ToTable("positions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_positions_weight", "weight BETWEEN 1 AND 5");
+                        });
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Vote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AssemblyVoteId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("assembly_vote_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("DetailsImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("details_import_id");
+
+                    b.Property<int>("Session")
+                        .HasColumnType("integer")
+                        .HasColumnName("session");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title");
+
+                    b.Property<DateOnly>("VoteDate")
+                        .HasColumnType("date")
+                        .HasColumnName("vote_date");
+
+                    b.HasKey("Id")
+                        .HasName("pk_votes");
+
+                    b.HasIndex("AssemblyVoteId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_votes_assembly_vote_id");
+
+                    b.HasIndex("DetailsImportId")
+                        .HasDatabaseName("ix_votes_details_import_id");
+
+                    b.HasIndex("Session")
+                        .HasDatabaseName("ix_votes_session");
+
+                    b.HasIndex("VoteDate")
+                        .HasDatabaseName("ix_votes_vote_date");
+
+                    b.ToTable("votes", (string)null);
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.VoteEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("ActorUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("actor_user_id");
+
+                    b.Property<long?>("ConflictId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("conflict_id");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("country_code");
+
+                    b.Property<Guid?>("ImportId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_id");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("new_value");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("old_value");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
+
+                    b.Property<int>("VoteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("vote_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vote_events");
+
+                    b.HasIndex("ActorUserId")
+                        .HasDatabaseName("ix_vote_events_actor_user_id");
+
+                    b.HasIndex("ConflictId")
+                        .HasDatabaseName("ix_vote_events_conflict_id");
+
+                    b.HasIndex("ImportId")
+                        .HasDatabaseName("ix_vote_events_import_id");
+
+                    b.HasIndex("VoteId", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_vote_events_vote_id_occurred_at_id");
+
+                    b.ToTable("vote_events", (string)null);
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Conflict", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedImportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_conflicts_imports_approved_import_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("ProposedImportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_conflicts_imports_proposed_import_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.AppUser", "ResolvedBy")
+                        .WithMany()
+                        .HasForeignKey("ResolvedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_conflicts_app_users_resolved_by_user_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Vote", "Vote")
+                        .WithMany()
+                        .HasForeignKey("VoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_conflicts_votes_vote_id");
+
+                    b.Navigation("ResolvedBy");
+
+                    b.Navigation("Vote");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.CountryVote", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_country_votes_app_users_approved_by_user_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("SourceImportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_country_votes_imports_source_import_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Vote", "Vote")
+                        .WithMany("CountryVotes")
+                        .HasForeignKey("VoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_country_votes_votes_vote_id");
+
+                    b.Navigation("Vote");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Import", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.AppUser", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_imports_app_users_uploaded_by_user_id");
+
+                    b.Navigation("UploadedBy");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.ImportRowResult", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("ImportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_import_row_results_imports_import_id");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.ImportVoteSummary", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("ImportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_import_vote_summaries_imports_import_id");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Position", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_positions_app_users_updated_by_user_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Vote", "Vote")
+                        .WithOne()
+                        .HasForeignKey("MeridianVoteTracker.Core.Entities.Position", "VoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_positions_votes_vote_id");
+
+                    b.Navigation("Vote");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Vote", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("DetailsImportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_votes_imports_details_import_id");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.VoteEvent", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_vote_events_app_users_actor_user_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Conflict", null)
+                        .WithMany()
+                        .HasForeignKey("ConflictId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_vote_events_conflicts_conflict_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
+                        .WithMany()
+                        .HasForeignKey("ImportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_vote_events_imports_import_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Vote", null)
+                        .WithMany()
+                        .HasForeignKey("VoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_vote_events_votes_vote_id");
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Vote", b =>
+                {
+                    b.Navigation("CountryVotes");
                 });
 #pragma warning restore 612, 618
         }

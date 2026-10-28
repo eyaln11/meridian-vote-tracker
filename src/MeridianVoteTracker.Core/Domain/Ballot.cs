@@ -22,6 +22,9 @@ public static class BallotCodes
         }
     }
 
+    public static Ballot Parse(string code) =>
+        TryParse(code, out var ballot) ? ballot : throw new FormatException($"'{code}' is not a ballot code.");
+
     public static string ToCode(this Ballot ballot) => ballot switch
     {
         Ballot.Yes => "Y",
