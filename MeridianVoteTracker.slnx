@@ -4,4 +4,7 @@
     <Project Path="src/MeridianVoteTracker.Core/MeridianVoteTracker.Core.csproj" />
     <Project Path="src/MeridianVoteTracker.Infrastructure/MeridianVoteTracker.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MeridianVoteTracker.Core.Tests/MeridianVoteTracker.Core.Tests.csproj" />
+  </Folder>
 </Solution>
