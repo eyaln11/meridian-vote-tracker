@@ -48,8 +48,6 @@ docker compose up            # start again
 docker compose down -v       # stop AND delete all data, to start from a clean system
 ```
 
-You can also start it in the background with `docker compose up --build -d`.
-
 ## 3. If something goes wrong
 
 | Problem | What to do |
@@ -57,10 +55,6 @@ You can also start it in the background with `docker compose up --build -d`.
 | `Cannot connect to the Docker daemon` | Docker is not running. Start Docker Desktop and try again. |
 | `port is already allocated` (4200 or 8080) | Use other ports. Bash: `WEB_PORT=4300 API_PORT=8090 docker compose up --build`. PowerShell: `$env:WEB_PORT=4300; $env:API_PORT=8090; docker compose up --build`. Then open http://localhost:4300. |
 | The page shows an error just after start | The API is still starting (it runs the database migrations). Wait 20 to 30 seconds and refresh. |
-| `git clone` or the build fails on Windows with "filename too long" | Clone into a short folder, for example `C:\src`. |
-| You changed `POSTGRES_PASSWORD` after the first run | Run `docker compose down -v` first, because the old database keeps the old password. |
-
-The database has no published port, so it cannot clash with a PostgreSQL that is already installed on your computer.
 
 ## 4. Addresses
 
@@ -70,7 +64,6 @@ The database has no published port, so it cannot clash with a PostgreSQL that is
 | The API | http://localhost:8080 |
 | API contract (OpenAPI, JSON) | http://localhost:8080/openapi/v1.json |
 | Health check | http://localhost:8080/health |
-| Database viewer (optional) | `docker compose --profile tools up -d adminer`, then http://localhost:8081 (system PostgreSQL, server `db`, user `meridian`, password `meridian_local`, database `meridian`) |
 
 ## 5. Users
 
@@ -90,12 +83,12 @@ What is real is the roles: the API checks them on every request, so an analyst w
 
 The data files are in the `candidate_data` folder you received with the assignment.
 
-1. **Imports:** upload `assembly_export_2024_q1.csv`. Watch the progress, then open the report (rejected rows with line, reason and original value).
-2. Upload `assembly_export_2024_q1_rev2.csv`. It opens 8 conflicts. Upload it again: there are no new rows and no new conflicts.
-3. **Review:** decide a conflict. To see the "two analysts at once" rule, open the same conflict in two tabs (Dana and Omer), decide in one, then decide in the other.
-4. **Votes:** switch to Lena, press "Set position" on a vote, and save a stance and a weight. Try weight 7 to see the error next to the field. The timeline shows every change.
-5. **Snapshots:** create one, open a country to see what each vote added to its score, then publish it as Lena.
-6. Optional: upload `assembly_historic.csv` (about 960,000 rows, about 2 minutes) and create a snapshot over everything (about 30 seconds).
+1. **Imports:** upload `assembly_export_2024_q1.csv`, watch the progress, and open the report. Then upload `assembly_export_2024_q1_rev2.csv`: it opens 8 conflicts. Uploading it again creates nothing new.
+2. **Review:** decide a conflict. To see the "two analysts at once" rule, open the same conflict in two tabs (Dana and Omer), decide in one, then decide in the other.
+3. **Votes:** switch to Lena, press "Set position" on a vote, and save a stance and a weight (try weight 7 to see the error next to the field).
+4. **Snapshots:** create one, open a country to see what each vote added to its score, then publish it as Lena.
+
+The big file `assembly_historic.csv` (about 960,000 rows) also works. It takes about 2 minutes to import.
 
 ## 7. Tests
 
@@ -114,25 +107,12 @@ dotnet test
 src/MeridianVoteTracker.Core            the rules, with no database: checks, classification, scoring
 src/MeridianVoteTracker.Infrastructure  database model and migrations, the code that runs imports and snapshots
 src/MeridianVoteTracker.Api             controllers, simple login, correlation id, background workers
-web/                                    the Angular app (nginx serves it and forwards /api to the API)
+web/                                    the Angular app (its API types are generated from the API contract)
 tests/                                  unit and integration tests
-scripts/demo-readme-example.sql         only for learning: the example from the assignment, written as table rows
 ```
 
-## 9. Working on the web app without Docker (optional)
+## 9. Good to know
 
-```bash
-cd web
-npm install
-npm start                # http://localhost:4200, sends /api to http://localhost:8080
-npm run api:generate     # rebuilds src/app/api/schema.d.ts from the running API
-```
-
-The API types in the web app are generated from the API contract. They are not written by hand.
-
-## 10. Good to know
-
-- **Secrets:** there are no keys or connection strings in the code. The API reads them from environment variables.
-  `docker-compose.yml` has a default database password (`meridian_local`) for local use only. Set `POSTGRES_PASSWORD` to use another one.
+- **Secrets:** there are no keys or connection strings in the code. The API reads them from environment variables. The default database password in `docker-compose.yml` is for local use only.
 - **Correlation id:** the web app sends an `X-Correlation-ID` with every request. The API puts it in every log line and every error, so one click can be followed in the logs (`docker compose logs api`).
 - **Not done:** the bonus (reading PDF sheets with Azure AI), and no Azure resources are used. [DECISIONS.md](DECISIONS.md) explains why, and what I planned.
