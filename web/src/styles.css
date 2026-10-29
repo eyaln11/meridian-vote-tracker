@@ -1,0 +1,77 @@
+:root {
+  --ink: #1d2733;
+  --muted: #5d6b7a;
+  --line: #d9dfe6;
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --accent: #1f5fbf;
+  --good: #1a7f45;
+  --bad: #b3261e;
+  --warn: #8a5a00;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ink);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 16px; background: var(--ink); color: #fff; }
+.top h1 { font-size: 18px; margin: 0; margin-right: auto; }
+.top nav { display: flex; gap: 4px; }
+.top nav a { color: #cfd8e3; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+.top nav a.active, .top nav a:hover { background: #2f3d4d; color: #fff; }
+.switcher { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+
+h2 { margin: 0 0 12px; font-size: 20px; }
+h3 { margin: 16px 0 8px; font-size: 16px; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.field input, .field select, .field textarea { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.field.invalid input, .field.invalid select, .field.invalid textarea { border-color: var(--bad); }
+.field-error { color: var(--bad); font-size: 13px; }
+
+button { padding: 7px 14px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 6px; cursor: pointer; font: inherit; }
+button.secondary { background: #fff; color: var(--accent); }
+button.danger { background: #fff; color: var(--bad); border-color: var(--bad); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+a { color: var(--accent); }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover { background: #eef3fb; }
+
+.banner { border: 1px solid var(--bad); background: #fdecea; color: #5f120d; padding: 10px 12px; border-radius: 6px; margin: 8px 0; display: flex; flex-direction: column; gap: 2px; }
+.banner.warning { border-color: #e0b04a; background: #fff6e0; color: var(--warn); }
+.banner small { color: var(--muted); }
+.notice { border: 1px solid var(--good); background: #e8f6ee; color: #14532d; padding: 10px 12px; border-radius: 6px; margin: 8px 0; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; background: #fff; }
+.chip b { margin-left: 4px; }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #e8ecf1; }
+.pill.Completed, .pill.Accepted, .pill.Match { background: #d9f0e3; color: #14532d; }
+.pill.Failed, .pill.Rejected, .pill.Against, .pill.Invalid { background: #fbdcd9; color: #5f120d; }
+.pill.Processing, .pill.Queued, .pill.Open { background: #fff0c9; color: #6b4a00; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0; }
+.compare > div { border: 1px solid var(--line); border-radius: 6px; padding: 10px; background: #fafbfc; }
+.compare .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.compare .value { font-size: 18px; font-weight: 600; margin: 4px 0; word-break: break-word; }
+.compare small { color: var(--muted); }
+
+progress { width: 180px; height: 10px; }
+.muted { color: var(--muted); }
+.spacer { height: 8px; }
+.pager { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.empty { color: var(--muted); padding: 12px 0; }
+
+@media (max-width: 720px) {
+  .compare { grid-template-columns: 1fr; }
+  table { display: block; overflow-x: auto; }
+}

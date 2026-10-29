@@ -30,6 +30,14 @@ services:
     ports:
       - "8080:8080"
 
+  web:
+    build:
+      context: ./web
+    depends_on:
+      - api
+    ports:
+      - "4200:80"
+
   # Optional database viewer for development: docker compose --profile tools up -d adminer
   # It is not started by a plain "docker compose up".
   adminer:

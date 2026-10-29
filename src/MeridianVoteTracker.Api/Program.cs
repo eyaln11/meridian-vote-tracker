@@ -15,7 +15,18 @@ builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers()
-    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        o.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+    });
+// The OpenAPI document is built from these options, so enums appear as readable names in the contract and in the generated client types.
+builder.Services.ConfigureHttpJsonOptions(o =>
+{
+    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    // Numbers are numbers, not text: this keeps the contract (and the generated client types) simple.
+    o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+});
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks().AddDbContextCheck<MeridianDbContext>("database");
 
