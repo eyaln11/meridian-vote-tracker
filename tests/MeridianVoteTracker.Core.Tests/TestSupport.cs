@@ -9,7 +9,6 @@ internal static class TestData
     private static MemberState Member(string code, string from, string? to = null) => new()
     {
         CountryCode = code,
-        CountryName = code,
         MemberFrom = DateOnly.Parse(from),
         MemberTo = to is null ? null : DateOnly.Parse(to)
     };

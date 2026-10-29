@@ -13,12 +13,13 @@ public class CountryVoteConfiguration : IEntityTypeConfiguration<CountryVote>
             t.HasCheckConstraint("ck_country_votes_ballot", "ballot IN ('Y', 'N', 'A', 'X')"));
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.CountryCode).HasMaxLength(3).IsRequired();
+        builder.Property(c => c.CountryCode).HasMaxLength(3).IsFixedLength().IsRequired();
         builder.Property(c => c.Ballot)
             .HasConversion(b => b.ToCode(), code => BallotCodes.Parse(code))
             .HasMaxLength(1);
 
         builder.HasOne(c => c.Vote).WithMany(v => v.CountryVotes).HasForeignKey(c => c.VoteId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<Country>().WithMany().HasForeignKey(c => c.CountryCode).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Import>().WithMany().HasForeignKey(c => c.SourceImportId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<AppUser>().WithMany().HasForeignKey(c => c.ApprovedByUserId).OnDelete(DeleteBehavior.Restrict);
 

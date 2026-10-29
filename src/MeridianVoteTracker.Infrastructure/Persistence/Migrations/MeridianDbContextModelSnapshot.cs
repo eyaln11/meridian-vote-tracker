@@ -56,7 +56,10 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_app_users_username");
 
-                    b.ToTable("app_users", (string)null);
+                    b.ToTable("app_users", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_app_users_role", "role IN ('Analyst', 'Admin')");
+                        });
                 });
 
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Conflict", b =>
@@ -80,8 +83,9 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("CountryCode")
                         .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("country_code");
+                        .HasColumnType("character(3)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -136,6 +140,9 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.HasIndex("ApprovedImportId")
                         .HasDatabaseName("ix_conflicts_approved_import_id");
 
+                    b.HasIndex("CountryCode")
+                        .HasDatabaseName("ix_conflicts_country_code");
+
                     b.HasIndex("ProposedImportId")
                         .HasDatabaseName("ix_conflicts_proposed_import_id");
 
@@ -157,9 +164,40 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.ToTable("conflicts", null, t =>
                         {
+                            t.HasCheckConstraint("ck_conflicts_ballot_values", "kind <> 'Ballot' OR (approved_value IN ('Y', 'N', 'A', 'X') AND proposed_value IN ('Y', 'N', 'A', 'X'))");
+
                             t.HasCheckConstraint("ck_conflicts_country", "(kind = 'Ballot' AND country_code IS NOT NULL) OR (kind <> 'Ballot' AND country_code IS NULL)");
 
+                            t.HasCheckConstraint("ck_conflicts_kind", "kind IN ('Ballot', 'Title', 'Date')");
+
                             t.HasCheckConstraint("ck_conflicts_resolution", "(status = 'Open' AND resolved_by_user_id IS NULL AND resolved_at IS NULL) OR (status <> 'Open' AND resolved_by_user_id IS NOT NULL AND resolved_at IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_conflicts_status", "status IN ('Open', 'Accepted', 'Rejected')");
+
+                            t.HasCheckConstraint("ck_conflicts_values_differ", "approved_value <> proposed_value");
+                        });
+                });
+
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Country", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("code")
+                        .IsFixedLength();
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Code")
+                        .HasName("pk_countries");
+
+                    b.ToTable("countries", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_countries_code", "code ~ '^[A-Z]{3}$'");
                         });
                 });
 
@@ -189,8 +227,9 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.Property<string>("CountryCode")
                         .IsRequired()
                         .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("country_code");
+                        .HasColumnType("character(3)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
 
                     b.Property<Guid>("SourceImportId")
                         .HasColumnType("uuid")
@@ -209,6 +248,9 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ApprovedByUserId")
                         .HasDatabaseName("ix_country_votes_approved_by_user_id");
+
+                    b.HasIndex("CountryCode")
+                        .HasDatabaseName("ix_country_votes_country_code");
 
                     b.HasIndex("SourceImportId")
                         .HasDatabaseName("ix_country_votes_source_import_id");
@@ -330,7 +372,10 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.HasIndex("UploadedByUserId")
                         .HasDatabaseName("ix_imports_uploaded_by_user_id");
 
-                    b.ToTable("imports", (string)null);
+                    b.ToTable("imports", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_imports_status", "status IN ('Queued', 'Processing', 'Completed', 'Failed')");
+                        });
                 });
 
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.ImportRowResult", b =>
@@ -382,7 +427,10 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.HasIndex("ImportId", "Class", "LineNumber")
                         .HasDatabaseName("ix_import_row_results_import_id_class_line_number");
 
-                    b.ToTable("import_row_results", (string)null);
+                    b.ToTable("import_row_results", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_import_row_results_class", "class IN ('New', 'Unchanged', 'Duplicate', 'Invalid', 'Contradiction', 'Conflict')");
+                        });
                 });
 
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.ImportVoteSummary", b =>
@@ -450,14 +498,9 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.Property<string>("CountryCode")
                         .IsRequired()
                         .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("country_code");
-
-                    b.Property<string>("CountryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("country_name");
+                        .HasColumnType("character(3)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
 
                     b.Property<DateOnly>("MemberFrom")
                         .HasColumnType("date")
@@ -474,7 +517,10 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_member_states_country_code_member_from");
 
-                    b.ToTable("member_states", (string)null);
+                    b.ToTable("member_states", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_member_states_period", "member_to IS NULL OR member_to >= member_from");
+                        });
                 });
 
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Position", b =>
@@ -509,6 +555,8 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.ToTable("positions", null, t =>
                         {
+                            t.HasCheckConstraint("ck_positions_stance", "stance IN ('Yes', 'No')");
+
                             t.HasCheckConstraint("ck_positions_weight", "weight BETWEEN 1 AND 5");
                         });
                 });
@@ -566,7 +614,10 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.HasIndex("VoteDate")
                         .HasDatabaseName("ix_votes_vote_date");
 
-                    b.ToTable("votes", (string)null);
+                    b.ToTable("votes", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_votes_session", "session > 0");
+                        });
                 });
 
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.VoteEvent", b =>
@@ -588,8 +639,9 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("CountryCode")
                         .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("country_code");
+                        .HasColumnType("character(3)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
 
                     b.Property<Guid?>("ImportId")
                         .HasColumnType("uuid")
@@ -633,13 +685,21 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.HasIndex("ConflictId")
                         .HasDatabaseName("ix_vote_events_conflict_id");
 
+                    b.HasIndex("CountryCode")
+                        .HasDatabaseName("ix_vote_events_country_code");
+
                     b.HasIndex("ImportId")
                         .HasDatabaseName("ix_vote_events_import_id");
 
                     b.HasIndex("VoteId", "OccurredAt", "Id")
                         .HasDatabaseName("ix_vote_events_vote_id_occurred_at_id");
 
-                    b.ToTable("vote_events", (string)null);
+                    b.ToTable("vote_events", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_vote_events_conflict", "type NOT IN ('ConflictOpened', 'ConflictAccepted', 'ConflictRejected') OR conflict_id IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_vote_events_type", "type IN ('VoteCreated', 'CountryVotesAdded', 'ConflictOpened', 'ConflictAccepted', 'ConflictRejected', 'PositionSet', 'PositionChanged')");
+                        });
                 });
 
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Conflict", b =>
@@ -650,6 +710,12 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_conflicts_imports_approved_import_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_conflicts_countries_country_code");
 
                     b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
                         .WithMany()
@@ -683,6 +749,13 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ApprovedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_country_votes_app_users_approved_by_user_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_country_votes_countries_country_code");
 
                     b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
                         .WithMany()
@@ -733,6 +806,16 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_import_vote_summaries_imports_import_id");
                 });
 
+            modelBuilder.Entity("MeridianVoteTracker.Core.Entities.MemberState", b =>
+                {
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_member_states_countries_country_code");
+                });
+
             modelBuilder.Entity("MeridianVoteTracker.Core.Entities.Position", b =>
                 {
                     b.HasOne("MeridianVoteTracker.Core.Entities.AppUser", null)
@@ -775,6 +858,12 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ConflictId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_vote_events_conflicts_conflict_id");
+
+                    b.HasOne("MeridianVoteTracker.Core.Entities.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_vote_events_countries_country_code");
 
                     b.HasOne("MeridianVoteTracker.Core.Entities.Import", null)
                         .WithMany()
