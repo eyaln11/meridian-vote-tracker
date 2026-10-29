@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MeridianVoteTracker.Infrastructure.Imports;
 using MeridianVoteTracker.Infrastructure.Persistence;
 using MeridianVoteTracker.Infrastructure.Services;
+using MeridianVoteTracker.Infrastructure.Snapshots;
 
 namespace MeridianVoteTracker.Infrastructure;
 
@@ -21,6 +22,8 @@ public static class DependencyInjection
             options.UploadDirectory = configuration["Storage:UploadDirectory"] ?? options.UploadDirectory);
         services.AddSingleton<ImportQueue>();
         services.AddScoped<ImportRunner>();
+        services.AddSingleton<SnapshotQueue>();
+        services.AddScoped<SnapshotRunner>();
         services.AddScoped<ConflictService>();
         services.AddScoped<PositionService>();
 

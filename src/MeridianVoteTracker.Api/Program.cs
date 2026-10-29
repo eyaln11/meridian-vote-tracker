@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using MeridianVoteTracker.Api.Auth;
 using MeridianVoteTracker.Api.Imports;
 using MeridianVoteTracker.Api.Middleware;
+using MeridianVoteTracker.Api.Snapshots;
 using MeridianVoteTracker.Infrastructure;
 using MeridianVoteTracker.Infrastructure.Persistence;
 using MeridianVoteTracker.Infrastructure.Seeding;
@@ -19,6 +20,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks().AddDbContextCheck<MeridianDbContext>("database");
 
 builder.Services.AddHostedService<ImportWorker>();
+builder.Services.AddHostedService<SnapshotWorker>();
 
 builder.Services.AddAuthentication(SimulatedAuthHandler.SchemeName)
     .AddScheme<AuthenticationSchemeOptions, SimulatedAuthHandler>(SimulatedAuthHandler.SchemeName, null);
