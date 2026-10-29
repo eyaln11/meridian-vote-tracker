@@ -21,6 +21,9 @@ services:
       dockerfile: src/MeridianVoteTracker.Api/Dockerfile
     environment:
       ConnectionStrings__Default: Host=db;Port=5432;Database=meridian;Username=meridian;Password=${POSTGRES_PASSWORD:-meridian_local}
+      Storage__UploadDirectory: /data/uploads
+    volumes:
+      - uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -42,3 +45,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:

@@ -13,3 +13,5 @@ dist/
 .vs/
 .idea/
 *.user
+# Uploaded files when running locally
+uploads/
