@@ -8,7 +8,7 @@ public class VoteConfiguration : IEntityTypeConfiguration<Vote>
 {
     public void Configure(EntityTypeBuilder<Vote> builder)
     {
-        builder.ToTable("votes");
+        builder.ToTable("votes", t => t.HasCheckConstraint("ck_votes_session", "session > 0"));
         builder.HasKey(v => v.Id);
 
         builder.Property(v => v.AssemblyVoteId).HasMaxLength(50).IsRequired();

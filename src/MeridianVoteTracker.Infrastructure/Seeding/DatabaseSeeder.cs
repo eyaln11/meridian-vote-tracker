@@ -38,10 +38,12 @@ public static class DatabaseSeeder
 
     private static async Task SeedMemberStatesAsync(MeridianDbContext db, CancellationToken ct)
     {
-        if (await db.MemberStates.AnyAsync(ct))
+        if (await db.Countries.AnyAsync(ct))
         {
             return;
         }
+
+        var countries = new Dictionary<string, Country>(StringComparer.Ordinal);
 
         var assembly = typeof(DatabaseSeeder).Assembly;
         var resource = assembly.GetManifestResourceNames().Single(n => n.EndsWith("member_states.csv", StringComparison.Ordinal));
@@ -64,16 +66,19 @@ public static class DatabaseSeeder
                 throw new InvalidOperationException($"member_states.csv line {lineNumber}: expected 4 columns but found {fields.Length}.");
             }
 
+            // A country that left and came back appears twice in the file but is one country.
+            countries.TryAdd(fields[0], new Country { Code = fields[0], Name = fields[1] });
+
             db.MemberStates.Add(new MemberState
             {
                 CountryCode = fields[0],
-                CountryName = fields[1],
                 MemberFrom = DateOnly.ParseExact(fields[2], "yyyy-MM-dd", CultureInfo.InvariantCulture),
                 MemberTo = string.IsNullOrWhiteSpace(fields[3])
                     ? null
                     : DateOnly.ParseExact(fields[3], "yyyy-MM-dd", CultureInfo.InvariantCulture)
             });
         }
+        db.Countries.AddRange(countries.Values);
         await db.SaveChangesAsync(ct);
     }
 }

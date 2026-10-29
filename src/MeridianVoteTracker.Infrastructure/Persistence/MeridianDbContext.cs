@@ -5,6 +5,7 @@ namespace MeridianVoteTracker.Infrastructure.Persistence;
 
 public class MeridianDbContext(DbContextOptions<MeridianDbContext> options) : DbContext(options)
 {
+    public DbSet<Country> Countries => Set<Country>();
     public DbSet<MemberState> MemberStates => Set<MemberState>();
     public DbSet<AppUser> Users => Set<AppUser>();
     public DbSet<Import> Imports => Set<Import>();

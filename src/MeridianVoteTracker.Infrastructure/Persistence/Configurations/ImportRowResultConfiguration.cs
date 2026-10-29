@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MeridianVoteTracker.Core.Domain;
 using MeridianVoteTracker.Core.Entities;
 
 namespace MeridianVoteTracker.Infrastructure.Persistence.Configurations;
@@ -8,7 +9,7 @@ public class ImportRowResultConfiguration : IEntityTypeConfiguration<ImportRowRe
 {
     public void Configure(EntityTypeBuilder<ImportRowResult> builder)
     {
-        builder.ToTable("import_row_results");
+        builder.ToTable("import_row_results", t => t.HasEnumCheck("ck_import_row_results_class", "class", typeof(RowClass)));
         builder.HasKey(r => r.Id);
 
         builder.Property(r => r.Class).HasConversion<string>().HasMaxLength(20);

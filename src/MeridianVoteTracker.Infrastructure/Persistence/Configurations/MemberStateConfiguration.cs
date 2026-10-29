@@ -8,13 +8,15 @@ public class MemberStateConfiguration : IEntityTypeConfiguration<MemberState>
 {
     public void Configure(EntityTypeBuilder<MemberState> builder)
     {
-        builder.ToTable("member_states");
+        builder.ToTable("member_states", t =>
+            t.HasCheckConstraint("ck_member_states_period", "member_to IS NULL OR member_to >= member_from"));
 
         builder.HasKey(m => m.Id);
 
-        builder.Property(m => m.CountryCode).HasMaxLength(3).IsRequired();
-        builder.Property(m => m.CountryName).HasMaxLength(100).IsRequired();
+        builder.Property(m => m.CountryCode).HasMaxLength(3).IsFixedLength().IsRequired();
         builder.Property(m => m.MemberFrom).IsRequired();
+
+        builder.HasOne<Country>().WithMany().HasForeignKey(m => m.CountryCode).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(m => new { m.CountryCode, m.MemberFrom }).IsUnique();
     }
