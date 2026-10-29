@@ -2,13 +2,14 @@
 
 ## Tool
 
-I used **Claude Code** (Anthropic's coding assistant). It read the assignment and the data files, proposed the design, wrote most of the code and tests, ran them, and explained each part to me. No AI service is part of the product itself.
+I used **Claude Code** (Anthropic's coding assistant) as a development partner for the whole project. I owned the requirements, the plan and the decisions. Claude Code generated the implementation (code and tests) in parts, under my direction, and explained it to me. No AI service is part of the product itself.
 
 ## How I worked
 
 1. **Requirements first.** Before any code, I went through the assignment (README and Appendix B, including the scanned sheets and the data files) and defined the work from its requirements. I used the AI to check that I had not missed anything: it read the documents and the data, and we matched every requirement (ING, CON, HIS, POS, SNP) to a planned part of the system.
-2. **Development in parts.** I built the system part by part: project setup, database, import rules, imports API, conflicts, positions, snapshots, web app, documents. For each part, we first agreed what would be built and why. I asked questions and challenged the design before moving on. Then the part was implemented, run and tested, and committed to Git on its own branch. The first parts were merged through GitHub pull requests, and later parts were merged locally because of the deadline.
-3. **Review of results.** As the deadline came closer, the AI wrote code directly into the repository. I reviewed the result by running the system (Docker, the web app, the real data files), by reading the tests, and by asking for an explanation of each part until I could explain it myself.
+2. **Part by part, with my own reasoning.** The system was built in parts: project setup, database, import rules, imports API, conflicts, positions, snapshots, web app, documents. For each part we first agreed what to build and why, and I questioned the design before any code was accepted (see the list below). Then the part was implemented, built and tested, and committed to Git on its own branch. The first parts were merged through GitHub pull requests, and later parts were merged locally because of the deadline.
+3. **My own checks.** In the early parts I ran the builds, tests and checks on my own machine. Later I used the running system like a user: Docker, the web app as Dana, Omer and Lena, and the real data files. This found things the AI had not seen: the user switch looked as if it did nothing, the Review filter was unclear, I could not find where to set a position, and one screen differed from Appendix B. All of them were fixed. I also asked to see real table data (a demo copy of the database) to understand the model before accepting it, and I asked for an explanation of each part until I could explain it myself.
+4. **Tests.** The AI wrote the tests, and they run on a real PostgreSQL. They reproduce the example of the assignment (section 7.2), and the real files give the results we expected from the analysis (for example 8 conflicts in `rev2`).
 
 ## Where I questioned or corrected what the AI produced
 
