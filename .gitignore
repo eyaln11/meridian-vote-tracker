@@ -15,3 +15,6 @@ dist/
 *.user
 # Uploaded files when running locally
 uploads/
+
+# Personal study notes, not part of the submission
+study/
