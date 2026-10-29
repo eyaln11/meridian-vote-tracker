@@ -14,6 +14,8 @@ public class CountryVoteConfiguration : IEntityTypeConfiguration<CountryVote>
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.CountryCode).HasMaxLength(3).IsFixedLength().IsRequired();
+        builder.Property(c => c.SourceLine).HasComment("Physical line in the uploaded file; the header is line 1.");
+        builder.Property(c => c.ApprovedByUserId).HasComment("Set only when a person approved this value by accepting a conflict.");
         builder.Property(c => c.Ballot)
             .HasConversion(b => b.ToCode(), code => BallotCodes.Parse(code))
             .HasMaxLength(1);

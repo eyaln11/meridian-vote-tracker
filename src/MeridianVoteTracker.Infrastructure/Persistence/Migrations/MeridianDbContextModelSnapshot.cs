@@ -216,7 +216,8 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.Property<int?>("ApprovedByUserId")
                         .HasColumnType("integer")
-                        .HasColumnName("approved_by_user_id");
+                        .HasColumnName("approved_by_user_id")
+                        .HasComment("Set only when a person approved this value by accepting a conflict.");
 
                     b.Property<string>("Ballot")
                         .IsRequired()
@@ -237,7 +238,8 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("SourceLine")
                         .HasColumnType("integer")
-                        .HasColumnName("source_line");
+                        .HasColumnName("source_line")
+                        .HasComment("Physical line in the uploaded file; the header is line 1.");
 
                     b.Property<int>("VoteId")
                         .HasColumnType("integer")
@@ -574,7 +576,8 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("assembly_vote_id");
+                        .HasColumnName("assembly_vote_id")
+                        .HasComment("The assembly's own permanent vote id, e.g. MA/2024/003.");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -582,11 +585,13 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("DetailsImportId")
                         .HasColumnType("uuid")
-                        .HasColumnName("details_import_id");
+                        .HasColumnName("details_import_id")
+                        .HasComment("The import that supplied the current title and date.");
 
                     b.Property<int>("Session")
                         .HasColumnType("integer")
-                        .HasColumnName("session");
+                        .HasColumnName("session")
+                        .HasComment("Number of the assembly's yearly session (README section 2), as published in the file: 79 = 2024, 78 = 2023, ... 70 = 2015. One session holds many votes on many different dates; it is not a day.");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -650,7 +655,8 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.Property<string>("NewValue")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasColumnName("new_value");
+                        .HasColumnName("new_value")
+                        .HasComment("Display text of the value after the change.");
 
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
@@ -664,7 +670,8 @@ namespace MeridianVoteTracker.Infrastructure.Persistence.Migrations
                     b.Property<string>("OldValue")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasColumnName("old_value");
+                        .HasColumnName("old_value")
+                        .HasComment("Display text of the value before the change, e.g. Y, a title, or 'Yes / weight 4'.");
 
                     b.Property<string>("Type")
                         .IsRequired()
