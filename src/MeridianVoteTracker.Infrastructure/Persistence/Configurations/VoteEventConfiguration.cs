@@ -20,8 +20,8 @@ public class VoteEventConfiguration : IEntityTypeConfiguration<VoteEvent>
 
         builder.Property(e => e.Type).HasConversion<string>().HasMaxLength(30);
         builder.Property(e => e.CountryCode).HasMaxLength(3).IsFixedLength();
-        builder.Property(e => e.OldValue).HasMaxLength(500);
-        builder.Property(e => e.NewValue).HasMaxLength(500);
+        builder.Property(e => e.OldValue).HasMaxLength(500).HasComment("Display text of the value before the change, e.g. Y, a title, or 'Yes / weight 4'.");
+        builder.Property(e => e.NewValue).HasMaxLength(500).HasComment("Display text of the value after the change.");
         builder.Property(e => e.Note).HasMaxLength(1000);
 
         builder.HasOne<Vote>().WithMany().HasForeignKey(e => e.VoteId).OnDelete(DeleteBehavior.Cascade);

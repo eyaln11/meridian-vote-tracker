@@ -13,6 +13,11 @@ public class VoteConfiguration : IEntityTypeConfiguration<Vote>
 
         builder.Property(v => v.AssemblyVoteId).HasMaxLength(50).IsRequired();
         builder.Property(v => v.Title).HasMaxLength(500).IsRequired();
+        builder.Property(v => v.Session).HasComment(
+            "Number of the assembly's yearly session (README section 2), as published in the file: 79 = 2024, 78 = 2023, ... 70 = 2015. " +
+            "One session holds many votes on many different dates; it is not a day.");
+        builder.Property(v => v.AssemblyVoteId).HasComment("The assembly's own permanent vote id, e.g. MA/2024/003.");
+        builder.Property(v => v.DetailsImportId).HasComment("The import that supplied the current title and date.");
 
         builder.HasOne<Import>().WithMany().HasForeignKey(v => v.DetailsImportId).OnDelete(DeleteBehavior.Restrict);
 
