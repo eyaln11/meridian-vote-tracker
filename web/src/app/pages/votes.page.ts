@@ -12,6 +12,11 @@ import { ProblemComponent } from '../shared/problem.component';
   imports: [FormsModule, DatePipe, ProblemComponent],
   template: `
     <h2>Votes</h2>
+    @if (session.isAdmin()) {
+      <p class="muted">As the admin you can set the stance and weight of a vote: use "Set position" or "Change" in a row.</p>
+    } @else {
+      <p class="muted">Only the admin (Lena) can set positions. Open a vote to see its country votes and its timeline.</p>
+    }
 
     <section class="card">
       <div class="row">
@@ -69,6 +74,9 @@ import { ProblemComponent } from '../shared/problem.component';
                     } @else {
                       <span class="muted">none</span>
                     }
+                    @if (session.isAdmin()) {
+                      <button class="secondary small" (click)="$event.stopPropagation(); open(v.id)">{{ v.position ? 'Change' : 'Set position' }}</button>
+                    }
                   </td>
                 </tr>
               }
@@ -85,7 +93,7 @@ import { ProblemComponent } from '../shared/problem.component';
   `,
 })
 export class VotesPage {
-  private readonly session = inject(Session);
+  protected readonly session = inject(Session);
   private readonly router = inject(Router);
 
   protected readonly page = signal<Schemas['PagedResultOfVoteListItemDto'] | null>(null);
