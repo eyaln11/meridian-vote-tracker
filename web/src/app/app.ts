@@ -23,6 +23,7 @@ import { Session } from './core/session';
             </option>
           }
         </select>
+        <span class="role" [class]="'role ' + session.user()?.role">{{ session.user()?.role }}</span>
       </label>
     </header>
     <main>

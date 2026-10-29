@@ -30,10 +30,10 @@ export class Session {
     this.write(user?.username ?? null);
   }
 
-  // Browser storage can be blocked, so it is only a convenience and every access is guarded.
+  // Browser storage is per tab, so two tabs can act as two users (Dana and Omer). It can also be blocked, so it is only a convenience and every access is guarded.
   private read(): string | null {
     try {
-      return localStorage.getItem(STORAGE_KEY);
+      return sessionStorage.getItem(STORAGE_KEY);
     } catch {
       return null;
     }
@@ -42,7 +42,7 @@ export class Session {
   private write(username: string | null): void {
     try {
       if (username) {
-        localStorage.setItem(STORAGE_KEY, username);
+        sessionStorage.setItem(STORAGE_KEY, username);
       }
     } catch {
       // ignore
