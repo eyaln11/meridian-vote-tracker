@@ -11,18 +11,13 @@ public class VoteConfiguration : IEntityTypeConfiguration<Vote>
         builder.ToTable("votes", t => t.HasCheckConstraint("ck_votes_session", "session > 0"));
         builder.HasKey(v => v.Id);
 
-        builder.Property(v => v.AssemblyVoteId).HasMaxLength(50).IsRequired();
+        builder.Property(v => v.AssemblyVoteId).HasMaxLength(50).IsRequired()
+            .HasComment("The assembly's own permanent vote id, e.g. MA/2024/003.");
         builder.Property(v => v.Title).HasMaxLength(500).IsRequired();
         builder.Property(v => v.Session).HasComment(
             "Session number as printed by the assembly (README section 2). It is only a label: one session holds many votes on many dates, "
             + "and the year cannot be derived from it. The 2015-2024 files fit 1945 + N (70 = 2015 ... 79 = 2024), "
             + "but the scanned sheets do not (61 = 2007, 64 = 2009, 67 = 2013). The reliable date of a vote is vote_date.");
-        builder.Property(v => v.AssemblyVoteId).HasMaxLength(50).IsRequired();
-        builder.Property(v => v.Title).HasMaxLength(500).IsRequired();
-        builder.Property(v => v.Session).HasComment(
-            "Number of the assembly's yearly session (README section 2), as published in the file: 79 = 2024, 78 = 2023, ... 70 = 2015. " +
-            "One session holds many votes on many different dates; it is not a day.");
-        builder.Property(v => v.AssemblyVoteId).HasComment("The assembly's own permanent vote id, e.g. MA/2024/003.");
         builder.Property(v => v.DetailsImportId).HasComment("The import that supplied the current title and date.");
 
         builder.HasOne<Import>().WithMany().HasForeignKey(v => v.DetailsImportId).OnDelete(DeleteBehavior.Restrict);
