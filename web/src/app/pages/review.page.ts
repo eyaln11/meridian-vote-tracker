@@ -14,6 +14,9 @@ type Conflict = Schemas['ConflictDto'];
   template: `
     <h2>Review</h2>
     <p class="muted">Conflicts are new file values that disagree with approved data. Nothing changes until a person decides.</p>
+    @if (session.user(); as u) {
+      <p class="muted">You are acting as <b>{{ u.displayName }}</b>. Decisions you make are recorded under this name.</p>
+    }
 
     <section class="card">
       <div class="row">
@@ -25,7 +28,9 @@ type Conflict = Schemas['ConflictDto'];
           <label for="status">Show</label>
           <select id="status" [ngModel]="status()" (ngModelChange)="status.set($event); load()">
             <option value="Open">Waiting for a decision</option>
-            <option value="">All, including decided</option>
+            <option value="Accepted">Decided: new value accepted</option>
+            <option value="Rejected">Decided: approved value kept</option>
+            <option value="">All conflicts</option>
           </select>
         </div>
         <button (click)="load()">Filter</button>
@@ -37,8 +42,18 @@ type Conflict = Schemas['ConflictDto'];
       <div class="notice">{{ n }}</div>
     }
 
-    @if (conflicts().length === 0 && !error()) {
-      <p class="empty">No conflicts to show.</p>
+    @if (!error()) {
+      @if (conflicts().length === 0) {
+        <p class="empty">
+          @if (status() === 'Open') {
+            No conflict is waiting for a decision. Choose "All conflicts" to see the ones that were already decided.
+          } @else {
+            No conflicts to show with this filter.
+          }
+        </p>
+      } @else {
+        <p class="muted">{{ total() }} conflicts. {{ conflicts().length === total() ? '' : 'Showing the first ' + conflicts().length + '.' }}</p>
+      }
     }
 
     @for (c of conflicts(); track c.id) {
@@ -90,11 +105,12 @@ type Conflict = Schemas['ConflictDto'];
   `,
 })
 export class ReviewPage {
-  private readonly session = inject(Session);
+  protected readonly session = inject(Session);
 
   protected readonly conflicts = signal<Conflict[]>([]);
   protected readonly voteFilter = signal('');
-  protected readonly status = signal<'Open' | ''>('Open');
+  protected readonly status = signal<'Open' | 'Accepted' | 'Rejected' | ''>('Open');
+  protected readonly total = signal(0);
   protected readonly error = signal<ApiError | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly notes = signal<Record<number, string>>({});
@@ -128,6 +144,7 @@ export class ReviewPage {
         }),
       );
       this.conflicts.set(page.items);
+      this.total.set(page.total);
       this.error.set(null);
     } catch (e) {
       this.error.set(e as ApiError);
