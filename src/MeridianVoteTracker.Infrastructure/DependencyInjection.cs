@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MeridianVoteTracker.Infrastructure.Imports;
 using MeridianVoteTracker.Infrastructure.Persistence;
 
 namespace MeridianVoteTracker.Infrastructure;
@@ -14,6 +15,11 @@ public static class DependencyInjection
 
         services.AddDbContext<MeridianDbContext>(options =>
             options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+
+        services.Configure<ImportStorageOptions>(options =>
+            options.UploadDirectory = configuration["Storage:UploadDirectory"] ?? options.UploadDirectory);
+        services.AddSingleton<ImportQueue>();
+        services.AddScoped<ImportRunner>();
 
         return services;
     }

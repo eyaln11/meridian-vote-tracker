@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using MeridianVoteTracker.Api.Auth;
+using MeridianVoteTracker.Api.Imports;
 using MeridianVoteTracker.Api.Middleware;
 using MeridianVoteTracker.Infrastructure;
 using MeridianVoteTracker.Infrastructure.Persistence;
@@ -16,6 +17,8 @@ builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks().AddDbContextCheck<MeridianDbContext>("database");
+
+builder.Services.AddHostedService<ImportWorker>();
 
 builder.Services.AddAuthentication(SimulatedAuthHandler.SchemeName)
     .AddScheme<AuthenticationSchemeOptions, SimulatedAuthHandler>(SimulatedAuthHandler.SchemeName, null);
@@ -47,3 +50,6 @@ await using (var scope = app.Services.CreateAsyncScope())
 }
 
 app.Run();
+
+// Makes the entry point visible to the integration tests.
+public partial class Program;
