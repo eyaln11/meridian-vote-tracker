@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { api, call, num, type Schemas } from '../api/client';
 import { ApiError } from '../core/api-error';
 import { Session } from '../core/session';
@@ -11,13 +11,14 @@ type Snapshot = Schemas['SnapshotDto'];
 
 @Component({
   selector: 'app-snapshots',
-  imports: [FormsModule, DatePipe, ProblemComponent],
+  imports: [FormsModule, DatePipe, RouterLink, ProblemComponent],
   template: `
     <h2>Snapshots</h2>
 
     <section class="card">
       <h3>Create a snapshot</h3>
       <p class="muted">Choose votes by dates and/or session, and add specific votes if you like. Choosing nothing uses every vote. The calculation runs in the background.</p>
+      <p class="muted">A vote without a position is left out of the ranking and listed in the result. Set positions on the <a routerLink="/votes">Votes</a> screen (filter: "No position yet").</p>
       <div class="row">
         <div class="field" [class.invalid]="error()?.field('name')">
           <label for="name">Name</label>

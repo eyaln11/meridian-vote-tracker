@@ -82,3 +82,5 @@ progress { width: 180px; height: 10px; }
 .role.Analyst { background: #9ec5ff; color: #0b2a55; }
 
 button.small { padding: 3px 10px; font-size: 13px; margin-left: 8px; }
+
+.pill.warn { background: #fff0c9; color: #6b4a00; }

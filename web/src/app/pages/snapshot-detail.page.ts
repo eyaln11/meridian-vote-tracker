@@ -32,6 +32,13 @@ import { ProblemComponent } from '../shared/problem.component';
       } @else if (s.status === 'Failed') {
         <app-problem [error]="failure()" />
       } @else {
+        @if (s.votesWithoutPosition > 0) {
+          <div class="banner warning">
+            <strong>{{ s.votesWithoutPosition }} of the {{ s.votesSelected }} selected votes were left out</strong>
+            <div>They have no position, so they do not count. They are listed at the bottom of this page. Set their positions on the Votes screen and create a new snapshot to include them.</div>
+          </div>
+        }
+
         <section class="card">
           <h3>Scoring rules used</h3>
           <ul>
