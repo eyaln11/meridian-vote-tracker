@@ -72,7 +72,7 @@ import { ProblemComponent } from '../shared/problem.component';
                     @if (v.position; as pos) {
                       {{ pos.stance }}, weight {{ pos.weight }}
                     } @else {
-                      <span class="muted">none</span>
+                      <span class="pill warn" title="This vote is left out of every ranking until it has a position">No position</span>
                     }
                     @if (session.isAdmin()) {
                       <button class="secondary small" (click)="$event.stopPropagation(); open(v.id)">{{ v.position ? 'Change' : 'Set position' }}</button>

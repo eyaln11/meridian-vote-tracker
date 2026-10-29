@@ -67,7 +67,7 @@ import { ProblemComponent } from '../shared/problem.component';
             @for (c of v.countryVotes; track c.countryCode) {
               <tr>
                 <td>{{ c.countryCode }} {{ c.countryName }}</td>
-                <td>{{ c.ballot }}</td>
+                <td>{{ c.ballot }} @if (c.approvedBy) { <span class="pill Accepted" title="This ballot was changed by a decision on a conflict">changed by decision</span> }</td>
                 <td>{{ c.sourceFile }}, line {{ c.sourceLine }}</td>
                 <td>{{ c.approvedBy ?? 'imported' }}</td>
               </tr>

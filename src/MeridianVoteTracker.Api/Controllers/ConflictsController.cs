@@ -66,8 +66,8 @@ public class ConflictsController(MeridianDbContext db, ConflictService service) 
                     HttpContext,
                     statusCode: StatusCodes.Status409Conflict,
                     title: "This conflict was already decided",
-                    detail: $"{current.ResolvedBy} already {current.Status.ToString().ToLowerInvariant()} it " +
-                            $"on {current.ResolvedAt:yyyy-MM-dd HH:mm} UTC. Nothing was changed; the current state is attached.");
+                    detail: $"{current.ResolvedBy} already {current.Status.ToString().ToLowerInvariant()} it. " +
+                            "Nothing was changed; the current state, with the time of the decision, is attached.");
                 problem.Extensions["conflict"] = current;
                 return new ObjectResult(problem) { StatusCode = StatusCodes.Status409Conflict };
 

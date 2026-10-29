@@ -41,6 +41,23 @@ type Conflict = Schemas['ConflictDto'];
     @if (notice(); as n) {
       <div class="notice">{{ n }}</div>
     }
+    @if (lostRace(); as r) {
+      <section class="card">
+        <h3>Current state of {{ r.voteId }}: {{ describe(r) }}</h3>
+        <div class="compare">
+          <div>
+            <div class="label">Value now</div>
+            <div class="value">{{ r.status === 'Accepted' ? r.proposedValue : r.approvedValue }}</div>
+            <small>{{ r.status }} by {{ r.resolvedBy }} on {{ r.resolvedAt | date: 'yyyy-MM-dd HH:mm' }}@if (r.resolutionNote) { : "{{ r.resolutionNote }}" }</small>
+          </div>
+          <div>
+            <div class="label">Previous value</div>
+            <div class="value">{{ r.status === 'Accepted' ? r.approvedValue : r.proposedValue }}</div>
+            <small>{{ r.status === 'Accepted' ? 'The approved value before the decision' : 'The value that was proposed and not accepted' }}</small>
+          </div>
+        </div>
+      </section>
+    }
 
     @if (!error()) {
       @if (conflicts().length === 0) {
@@ -113,6 +130,8 @@ export class ReviewPage {
   protected readonly total = signal(0);
   protected readonly error = signal<ApiError | null>(null);
   protected readonly notice = signal<string | null>(null);
+  /** The conflict as the server sees it now, shown when another analyst decided first (README CON-05). */
+  protected readonly lostRace = signal<Conflict | null>(null);
   protected readonly notes = signal<Record<number, string>>({});
   protected readonly busy = signal<number | null>(null);
   private readonly rowErrors = signal<Record<number, ApiError>>({});
@@ -154,6 +173,7 @@ export class ReviewPage {
   protected async decide(c: Conflict, decision: 'Accept' | 'Reject'): Promise<void> {
     this.busy.set(c.id);
     this.notice.set(null);
+    this.lostRace.set(null);
     this.rowErrors.update((r) => {
       const { [c.id]: _, ...rest } = r;
       return rest;
@@ -173,6 +193,7 @@ export class ReviewPage {
         // Someone decided first (README CON-05): show a clear message and refresh to the current state.
         await this.load();
         this.error.set(problem);
+        this.lostRace.set((problem.extensions['conflict'] as Conflict | undefined) ?? null);
       } else {
         this.rowErrors.update((r) => ({ ...r, [c.id]: problem }));
       }
