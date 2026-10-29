@@ -4,41 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using MeridianVoteTracker.Core.Domain;
 using MeridianVoteTracker.Infrastructure.Persistence;
 using static MeridianVoteTracker.Api.IntegrationTests.ApiFixture;
+using static MeridianVoteTracker.Api.IntegrationTests.TestFiles;
 
 namespace MeridianVoteTracker.Api.IntegrationTests;
 
 /// <summary>The README section 7.2 example, end to end: upload, background processing, report, conflicts, re-upload.</summary>
 public class ImportFlowTests(ApiFixture api) : IClassFixture<ApiFixture>
 {
-    private const string Header =
-        "assembly_vote_id,session,vote_date,resolution_title,country_code,country_name,ballot,published_at";
-
-    private static string Row(string vote, string date, string title, string country, string name, string ballot) =>
-        $"{vote},79,{date},{title},{country},{name},{ballot},2024-04-02T09:00:00Z";
-
-    private static readonly string[] Original =
-    [
-        Header,
-        Row("MA/2024/101", "2024-01-10", "Maritime Safety", "BRA", "Brazil", "Y"),
-        Row("MA/2024/101", "2024-01-10", "Maritime Safety", "IND", "India", "Y"),
-        Row("MA/2024/102", "2024-01-11", "Food Security", "JPN", "Japan", "Y"),
-        Row("MA/2024/102", "2024-01-11", "Food Security", "JPN", "Japan", "Y"),
-        Row("MA/2024/103", "2024-01-12", "Digital Trade", "FRA", "France", "Y"),
-        Row("MA/2024/103", "2024-01-12", "Digital Trade", "FRA", "France", "N"),
-        Row("MA/2024/104", "2024-01-15", "Climate Finance", "FRN", "France", "X"),
-        Row("MA/2024/104", "2024-01-15", "Climate Finance", "NZL", "New Zealand", "Y")
-    ];
-
-    private static readonly string[] Corrected =
-    [
-        Header,
-        Row("MA/2024/101", "2024-01-10", "Maritime Safety and Trade", "BRA", "Brazil", "A"),
-        Row("MA/2024/101", "2024-01-10", "Maritime Safety and Trade", "IND", "India", "Y"),
-        Row("MA/2024/103", "2024-01-12", "Digital Trade", "FRA", "France", "N"),
-        Row("MA/2024/104", "2024-01-15", "Climate Finance", "FRA", "France", "X"),
-        Row("MA/2024/105", "2024-02-01", "Public Health", "BRA", "Brazil", "Y")
-    ];
-
     [Fact]
     public async Task Readme_example_original_then_corrected_then_the_same_file_again()
     {

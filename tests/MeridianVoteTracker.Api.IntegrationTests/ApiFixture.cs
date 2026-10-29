@@ -14,13 +14,15 @@ namespace MeridianVoteTracker.Api.IntegrationTests;
 /// </summary>
 public sealed class ApiFixture : IAsyncLifetime
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17").Build();
     private readonly string _uploads = Path.Combine(Path.GetTempPath(), "meridian-tests-" + Guid.NewGuid().ToString("N"));
+    private readonly SemaphoreSlim _seedLock = new(1, 1);
+    private bool _seeded;
     private WebApplicationFactory<Program>? _factory;
 
     public WebApplicationFactory<Program> Factory => _factory!;
@@ -29,10 +31,12 @@ public sealed class ApiFixture : IAsyncLifetime
     {
         await _postgres.StartAsync();
 
-        // Program.cs reads its settings from the environment, exactly as it does in Docker.
-        Environment.SetEnvironmentVariable("ConnectionStrings__Default", _postgres.GetConnectionString());
-        Environment.SetEnvironmentVariable("Storage__UploadDirectory", _uploads);
-        _factory = new WebApplicationFactory<Program>();
+        // Each fixture passes its own settings to its own host, so test classes can run side by side with separate databases.
+        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("ConnectionStrings:Default", _postgres.GetConnectionString());
+            builder.UseSetting("Storage:UploadDirectory", _uploads);
+        });
     }
 
     public async Task DisposeAsync()
@@ -57,6 +61,27 @@ public sealed class ApiFixture : IAsyncLifetime
             client.DefaultRequestHeaders.Add("X-User", user);
         }
         return client;
+    }
+
+    /// <summary>Uploads the original and the corrected file of the README example once, so a test class starts with votes and open conflicts.</summary>
+    public async Task SeedReadmeExampleAsync()
+    {
+        await _seedLock.WaitAsync();
+        try
+        {
+            if (_seeded)
+            {
+                return;
+            }
+            var dana = ClientFor("dana");
+            await UploadAndWaitAsync(dana, "original.csv", TestFiles.Original);
+            await UploadAndWaitAsync(dana, "corrected.csv", TestFiles.Corrected);
+            _seeded = true;
+        }
+        finally
+        {
+            _seedLock.Release();
+        }
     }
 
     public static async Task<ImportView> UploadAsync(HttpClient client, string fileName, params string[] lines)
