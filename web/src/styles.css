@@ -84,3 +84,8 @@ progress { width: 180px; height: 10px; }
 button.small { padding: 3px 10px; font-size: 13px; margin-left: 8px; }
 
 .pill.warn { background: #fff0c9; color: #6b4a00; }
+
+/* One line per cell: the position text and its button sit side by side and are aligned. */
+.nowrap { white-space: nowrap; }
+.position-cell { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.position-cell button.small { margin-left: 0; }

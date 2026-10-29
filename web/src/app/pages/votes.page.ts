@@ -63,12 +63,13 @@ import { ProblemComponent } from '../shared/problem.component';
               @for (v of p.items; track v.id) {
                 <tr class="clickable" (click)="open(v.id)">
                   <td>{{ v.voteId }}</td>
-                  <td>{{ v.voteDate | date: 'yyyy-MM-dd' }}</td>
+                  <td class="nowrap">{{ v.voteDate | date: 'yyyy-MM-dd' }}</td>
                   <td>{{ v.title }}</td>
                   <td class="num">{{ v.session }}</td>
                   <td class="num">{{ v.countryVotes }}</td>
                   <td class="num">{{ v.openConflicts }}</td>
                   <td>
+                   <div class="position-cell">
                     @if (v.position; as pos) {
                       {{ pos.stance }}, weight {{ pos.weight }}
                     } @else {
@@ -77,6 +78,7 @@ import { ProblemComponent } from '../shared/problem.component';
                     @if (session.isAdmin()) {
                       <button class="secondary small" (click)="$event.stopPropagation(); open(v.id)">{{ v.position ? 'Change' : 'Set position' }}</button>
                     }
+                   </div>
                   </td>
                 </tr>
               }
