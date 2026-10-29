@@ -84,7 +84,7 @@ What is real is the roles: the API checks them on every request, so an analyst w
 | Omer | Analyst | same as Dana |
 | Lena | Admin | the same, plus set positions and weights, and publish snapshots |
 
-Each browser tab remembers its own user, so you can open two tabs and act as Dana in one and as Omer in the other.
+**Why there is a user menu, and one user per tab.** In real use, each person would work at their own computer and sign in with their own account and role. To make the system easy to check, this version lets one person switch between the three users with the "Acting as" menu, and each browser tab keeps its own user. So you can open two tabs on one computer, one as Dana and one as Omer, and try the "two analysts at once" rule. The roles are still checked by the API.
 
 ## 6. A short walkthrough
 
